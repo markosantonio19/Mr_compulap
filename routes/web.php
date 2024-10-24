@@ -27,3 +27,5 @@ Route::get('/ventas', [menuadmin::class, 'ventas'])->name('ventas');
 use App\Http\Controllers\ProductoController;
 Route::post('/productosagregar', [ProductoController::class, 'productosagregar'])->name('productosagregar');
 Route::get('/productosadmin', [ProductoController::class, 'mostrarProductos'])->name('productosadmin');
+Route::delete('/eliminarProducto/{id}', [ProductoController::class, 'eliminarProducto'])->name('eliminarProducto');
+Route::get('/productos', [ProductoController::class, 'mostrarProductoscliente'])->name('productos');

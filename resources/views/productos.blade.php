@@ -35,6 +35,7 @@
             padding: 20px;
             background-color: #f8f9fa;
             border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .product-title {
@@ -49,14 +50,29 @@
             line-height: 1.6;
         }
 
+        .search-box {
+            margin-bottom: 20px;
+        }
+
         .product-item {
             margin-bottom: 30px;
+            transition: transform 0.3s;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 15px;
+            background-color: #ffffff;
+        }
+
+        .product-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         .product-item img {
             width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 150px; /* Altura ajustada para mejorar el diseño */
+            object-fit: cover; /* Para ajustar la imagen sin distorsión */
         }
 
         .btn-primary {
@@ -68,6 +84,27 @@
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
+        }
+
+        .product-price {
+            font-size: 1.5em;
+            color: #28a745; /* Color verde para el precio */
+            font-weight: bold;
+        }
+
+        .product-stock {
+            font-size: 1em;
+            color: #dc3545; /* Color rojo para el stock bajo */
+            margin-bottom: 10px;
+        }
+
+        .btn-comprar {
+            background-color: #ffc107; /* Color amarillo para el botón Comprar */
+            border: none;
+        }
+
+        .btn-comprar:hover {
+            background-color: #e0a800; /* Color más oscuro al pasar el ratón */
         }
     </style>
 </head>
@@ -105,28 +142,42 @@
         <div class="content-section text-center">
             <h2 class="product-title">Nuestros Productos</h2>
             <p class="product-description">Explora nuestra variedad de productos tecnológicos, desde laptops hasta componentes y accesorios.</p>
-            <div class="row">
-                <div class="col-md-4 product-item">
-                    <img src="https://via.placeholder.com/400x300" alt="Producto 1">
-                    <h4>Producto 1</h4>
-                    <p>Descripción breve del producto 1.</p>
-                </div>
-                <div class="col-md-4 product-item">
-                    <img src="https://via.placeholder.com/400x300" alt="Producto 2">
-                    <h4>Producto 2</h4>
-                    <p>Descripción breve del producto 2.</p>
-                </div>
-                <div class="col-md-4 product-item">
-                    <img src="https://via.placeholder.com/400x300" alt="Producto 3">
-                    <h4>Producto 3</h4>
-                    <p>Descripción breve del producto 3.</p>
-                </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar productos..." onkeyup="filterProducts()">
             </div>
-            <button class="btn btn-primary mt-4">Ver Más Productos</button>
+            <div class="row" id="productList">
+                @foreach($productos as $producto)
+                    <div class="col-md-4 product-item">
+                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}">
+                        <h4>{{ $producto->nombre }}</h4>
+                        <p class="product-description">{{ $producto->descripcion }}</p>
+                        <p class="product-price">S/ {{ number_format($producto->precio, 2) }}</p>
+                        <p class="product-stock">Stock: {{ $producto->stock }} unidades</p>
+                        <button class="btn btn-comprar">Comprar</button>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filterProducts() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const productList = document.getElementById('productList');
+            const products = productList.getElementsByClassName('product-item');
+
+            for (let i = 0; i < products.length; i++) {
+                const productName = products[i].getElementsByTagName("h4")[0].innerText.toLowerCase();
+                if (productName.includes(filter)) {
+                    products[i].style.display = ""; // Muestra el producto
+                } else {
+                    products[i].style.display = "none"; // Oculta el producto
+                }
+            }
+        }
+    </script>
 </body>
 </html>

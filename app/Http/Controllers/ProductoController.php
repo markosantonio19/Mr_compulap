@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Producto;
 use Illuminate\Http\Request;
@@ -45,7 +46,38 @@ class ProductoController extends Controller
         $productos = Producto::all(); // Obtén todos los productos desde la base de datos
         return view('productosadmin', compact('productos'));
     }
-    
-    
 
+    public function eliminarProducto($id)
+    {
+        // Encontrar el producto por su ID
+        $producto = Producto::findOrFail($id);
+        
+        // Verificar si el producto tiene una imagen asociada
+        if ($producto->imagen) {
+            // Eliminar la imagen de la carpeta 'public/productos'
+            Storage::disk('public')->delete($producto->imagen);
+        }
+
+        // Eliminar el producto de la base de datos
+        $producto->delete();
+
+        // Obtener la lista actualizada de productos
+        $productos = Producto::all();
+
+        // Retornar la respuesta JSON con la lista actualizada y un mensaje de éxito
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto eliminado con éxito.',
+            'productos' => $productos,
+        ]);
+    }
+    public function mostrarProductoscliente()
+    {
+        // Obtiene todos los productos disponibles en stock, paginados
+        $productos = Producto::where('stock', '>', 0)->paginate(10);
+        
+        // Retorna la vista con los productos
+        return view('productos', compact('productos'));
+    }
+    
 }

@@ -1,10 +1,9 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar Productos - Mr. Compulap</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}"> <!-- Incluye tu CSS -->
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -77,8 +76,6 @@
             margin-top: 1rem;
             border-radius: 8px;
         }
-
-        /* Estilos para los productos */
         .product-container {
             display: flex;
             flex-wrap: wrap;
@@ -117,8 +114,6 @@
         .btn-product {
             margin: 0.25rem;
         }
-
-        /* Estilos para el buscador */
         .search-bar input {
             padding: 0.75rem;
             border-radius: 10px;
@@ -173,31 +168,32 @@
             </div>
         @endif
 
-        <!-- Formulario para agregar productos -->
         <form action="{{ route('productosagregar') }}" method="POST" enctype="multipart/form-data" id="formularioAgregar">
-            @csrf <!-- Token de seguridad -->
-            <div class="form-group">
-                <label for="nombre">Nombre del producto:</label>
-                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresa el nombre del producto" required>
-            </div>
-            <div class="form-group">
-                <label for="precio">Precio:</label>
-                <input type="number" class="form-control" id="precio" name="precio" placeholder="Ingresa el precio del producto" required step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="stock">Stock:</label>
-                <input type="number" class="form-control" id="stock" name="stock" placeholder="Ingresa la cantidad en stock" required>
-            </div>
-            <div class="form-group">
-                <label for="descripcion">Descripción:</label>
-                <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Ingresa una descripción del producto"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="imagen">Imagen:</label>
-                <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
-            </div>
-            <button type="submit" class="btn btn-success">Agregar Producto</button>
-        </form>
+    @csrf <!-- Token de seguridad -->
+    <div class="form-group">
+        <label for="nombre">Nombre del producto:</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresa el nombre del producto" required>
+    </div>
+    <div class="form-group">
+        <label for="precio">Precio:</label>
+        <input type="number" class="form-control" id="precio" name="precio" placeholder="Ingresa el precio del producto" required step="0.01">
+    </div>
+    <div class="form-group">
+        <label for="stock">Stock:</label>
+        <input type="number" class="form-control" id="stock" name="stock" placeholder="Ingresa la cantidad en stock" required>
+    </div>
+    <div class="form-group">
+        <label for="descripcion">Descripción:</label>
+        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Ingresa una descripción del producto"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="imagen">Imagen:</label>
+        <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*" required>
+    </div>
+
+    <button type="submit" class="btn btn-success">Agregar Producto</button>
+</form>
+
 
         <!-- Buscador de productos -->
         <div class="search-bar mt-4">
@@ -208,7 +204,7 @@
         <h2 class="mt-5">Lista de Productos</h2>
         <div class="product-container" id="productContainer">
             @forelse($productos as $producto)
-                <div class="product-card">
+                <div class="product-card" data-id="{{ $producto->id }}">
                     <img src="{{ asset('storage/' . $producto->imagen) }}" alt="Imagen de {{ $producto->nombre }}">
                     <h5>{{ $producto->nombre }}</h5>
                     <p>Precio: S/ {{ $producto->precio }}</p>
@@ -221,43 +217,55 @@
                 <p>No hay productos agregados aún.</p>
             @endforelse
         </div>
+
+        <script>
+            function eliminarProducto(productId) {
+                if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+                    fetch(`/eliminarProducto/${productId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) {
+                            document.querySelector(`[data-id="${productId}"]`).remove();
+                        }
+                    });
+                }
+            }
+
+            function editarProducto(productId) {
+                // Lógica para editar el producto (puedes implementar un modal o redirigir a otra página)
+                alert(`Editar producto con ID: ${productId}`);
+            }
+
+            document.getElementById('btnMostrarFormulario').onclick = function() {
+                const formulario = document.getElementById('formularioAgregar');
+                formulario.style.display = formulario.style.display === 'none' ? 'block' : 'none';
+            };
+
+            // Lógica para buscar productos
+            document.getElementById('buscador').addEventListener('keyup', function() {
+                const filter = this.value.toLowerCase();
+                const products = document.querySelectorAll('.product-card');
+                products.forEach(product => {
+                    const name = product.querySelector('h5').textContent.toLowerCase();
+                    product.style.display = name.includes(filter) ? 'block' : 'none';
+                });
+            });
+        </script>
     </main>
 
     <footer>
         <p>&copy; {{ date('Y') }} Mr. Compulap. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Agregar Bootstrap JS y jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
-    <script>
-        // Función para mostrar/ocultar el formulario de agregar producto
-        document.getElementById('btnMostrarFormulario').addEventListener('click', function() {
-            var formulario = document.getElementById('formularioAgregar');
-            if (formulario.style.display === 'none' || formulario.style.display === '') {
-                formulario.style.display = 'block';
-            } else {
-                formulario.style.display = 'none';
-            }
-        });
-
-        // Función de eliminar producto (puedes reemplazar esta lógica con la lógica de tu aplicación)
-        function eliminarProducto(id) {
-            if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-                // Lógica para eliminar el producto (puede ser una llamada AJAX o redireccionamiento)
-                // window.location.href = '/productos/eliminar/' + id; // Descomentar y adaptar la ruta
-                alert('Producto con ID ' + id + ' eliminado.'); // Mensaje temporal
-            }
-        }
-
-        // Función de editar producto (puedes reemplazar esta lógica con la lógica de tu aplicación)
-        function editarProducto(id) {
-            // Lógica para editar el producto (puede ser abrir un modal o redireccionamiento)
-            // window.location.href = '/productos/editar/' + id; // Descomentar y adaptar la ruta
-            alert('Abrir formulario de edición para el producto con ID ' + id); // Mensaje temporal
-        }
-    </script>
 </body>
 </html>
